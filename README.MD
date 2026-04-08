@@ -230,6 +230,120 @@ function CookieScanner() {
 }
 ```
 
+## Headless Mode
+
+If you need full control over the UI, use the `CookieConsentProvider` and `useCookieConsent` hook. This gives you all the consent logic without any pre-built UI — build your own cookie banner with your own design system.
+
+### Setup
+
+Wrap your app with the provider:
+
+```jsx
+import { CookieConsentProvider } from "@six-socks-studio/cookie-consent";
+
+function App() {
+  return (
+    <CookieConsentProvider config={config}>
+      <YourApp />
+    </CookieConsentProvider>
+  );
+}
+```
+
+### Custom Banner
+
+Then use the `useCookieConsent` hook anywhere in the tree:
+
+```jsx
+import { useCookieConsent } from "@six-socks-studio/cookie-consent";
+
+function MyCustomBanner() {
+  const {
+    bannerVisible,
+    consent,
+    acceptAll,
+    rejectAll,
+    showPreferences,
+    cookies,
+    getCookiesByCategory,
+  } = useCookieConsent();
+
+  if (!bannerVisible) return null;
+
+  return (
+    <div className="my-cookie-banner">
+      <p>We use cookies to improve your experience.</p>
+      <div className="actions">
+        <button onClick={rejectAll}>No thanks</button>
+        <button onClick={showPreferences}>Customize</button>
+        <button onClick={acceptAll}>Accept all</button>
+      </div>
+    </div>
+  );
+}
+```
+
+### Custom Preferences Panel
+
+```jsx
+function MyPreferencesPanel() {
+  const {
+    consent,
+    modalVisible,
+    closePreferences,
+    setSpecificConsent,
+    cookies,
+    getCookiesByCategory,
+  } = useCookieConsent();
+
+  if (!modalVisible) return null;
+
+  const toggleCategory = (category: string, value: boolean) => {
+    setSpecificConsent({ [category]: value });
+  };
+
+  return (
+    <dialog open>
+      <h2>Cookie Preferences</h2>
+
+      <label>
+        <input
+          type="checkbox"
+          checked={consent?.analytics ?? false}
+          onChange={(e) => toggleCategory("analytics", e.target.checked)}
+        />
+        Analytics ({getCookiesByCategory("analytics").length} cookies)
+      </label>
+
+      <label>
+        <input
+          type="checkbox"
+          checked={consent?.advertising ?? false}
+          onChange={(e) => toggleCategory("advertising", e.target.checked)}
+        />
+        Advertising ({getCookiesByCategory("advertising").length} cookies)
+      </label>
+
+      <button onClick={closePreferences}>Save & Close</button>
+    </dialog>
+  );
+}
+```
+
+### Conditional Rendering Based on Consent
+
+```jsx
+function AnalyticsWidget() {
+  const { consent } = useCookieConsent();
+
+  if (!consent?.analytics) {
+    return <p>Enable analytics cookies to see this widget.</p>;
+  }
+
+  return <MyAnalyticsDashboard />;
+}
+```
+
 ## Advanced Usage
 
 ### Manual Services Configuration

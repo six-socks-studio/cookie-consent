@@ -1,6 +1,7 @@
 export * from "./types";
 export * from "./components";
 export * from "./hooks";
+export * from "./context/CookieConsentContext";
 export * from "./utils/cookieHelpers";
 export * from "./utils/gdprHelpers";
 export { default as CookieScanner } from "./services/cookieScanner";
