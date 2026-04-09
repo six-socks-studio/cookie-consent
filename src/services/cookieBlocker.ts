@@ -12,6 +12,7 @@ interface Script {
 
 class CookieBlocker {
   private readonly scripts: Script[] = [];
+  private consentCookieName: string = "gdpr_consent";
   private readonly categoryMap: Record<string, ConsentCategory> = {
     "google-analytics": "analytics",
     gtag: "analytics",
@@ -61,6 +62,11 @@ class CookieBlocker {
         });
       }
     });
+  }
+
+  // Set the consent cookie name so we know which cookie to preserve
+  setConsentCookieName(name: string): void {
+    this.consentCookieName = name;
   }
 
   // Block scripts based on consent state
@@ -147,12 +153,18 @@ class CookieBlocker {
   // Clear all non-essential cookies
   private clearNonEssentialCookies(): void {
     const cookies = document.cookie.split(";");
+    const encodedConsentName = encodeURIComponent(this.consentCookieName);
 
     cookies.forEach((cookie) => {
       const name = cookie.split("=")[0].trim();
 
-      // Skip known essential cookies
-      if (name === "gdpr_consent" || name === "cookie_consent") return;
+      // Skip the consent cookie (check both raw and encoded names)
+      if (
+        name === this.consentCookieName ||
+        name === encodedConsentName
+      ) {
+        return;
+      }
 
       // Delete cookie
       document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;`;

@@ -26,6 +26,9 @@ export function useConsent(config: ConsentConfig) {
   const cookieBlocker = cookieBlockerRef.current;
 
   useEffect(() => {
+    // Tell the blocker which cookie name to preserve
+    cookieBlocker.setConsentCookieName(config.cookieName);
+
     // Initialize cookie blocker
     cookieBlocker.init();
 
